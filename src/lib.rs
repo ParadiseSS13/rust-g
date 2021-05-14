@@ -25,6 +25,15 @@ extern crate serde_json;
 #[cfg(feature = "sql")]
 extern crate mysql;
 
+#[cfg(feature = "feature-log-panics")]
+extern crate simple_logging;
+
+#[cfg(feature = "feature-log-panics")]
+extern crate log_panics;
+
+#[cfg(feature = "feature-log-panics")]
+mod log_init;
+
 #[macro_use]
 mod byond;
 #[allow(dead_code)]
@@ -41,7 +50,7 @@ pub mod git;
 pub mod hash;
 #[cfg(feature = "http")]
 pub mod http;
-#[cfg(feature = "log")]
+#[cfg(feature = "logf")]
 pub mod log;
 #[cfg(feature = "noise")]
 pub mod noise_gen;
@@ -52,3 +61,13 @@ pub mod url;
 
 #[cfg(not(target_pointer_width = "32"))]
 compile_error!("rust-g must be compiled for a 32-bit target");
+
+#[cfg(feature = "feature-log-panics")]
+#[macro_use]
+extern crate ctor;
+
+#[cfg(feature = "feature-log-panics")]
+#[ctor]
+fn on_attach() {
+    log_init::log_init();
+}
