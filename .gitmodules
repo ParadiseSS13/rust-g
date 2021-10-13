@@ -1,0 +1,3 @@
+[submodule "tg-rust-g"]
+	path = tg-rust-g
+	url = https://github.com/tgstation/rust-g.git

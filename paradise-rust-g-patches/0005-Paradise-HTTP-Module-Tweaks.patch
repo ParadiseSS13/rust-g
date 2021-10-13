@@ -1,0 +1,178 @@
+From ad7d7a43f2f133f182bf53cd395e1d7611e395fc Mon Sep 17 00:00:00 2001
+From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
+Date: Thu, 14 Oct 2021 15:50:14 +0100
+Subject: [PATCH] Paradise HTTP Module Tweaks
+
+
+diff --git a/dmsrc/http.dm b/dmsrc/http.dm
+index e74e6d0..55fd9df 100644
+--- a/dmsrc/http.dm
++++ b/dmsrc/http.dm
+@@ -1,4 +1,4 @@
+-// HTTP Operations //
++// HTTP Operations //
+ #define RUSTG_HTTP_METHOD_GET "get"
+ #define RUSTG_HTTP_METHOD_PUT "put"
+ #define RUSTG_HTTP_METHOD_DELETE "delete"
+@@ -8,3 +8,5 @@
+ #define rustg_http_request_blocking(method, url, body, headers, options) call(RUST_G, "http_request_blocking")(method, url, body, headers, options)
+ #define rustg_http_request_async(method, url, body, headers, options) call(RUST_G, "http_request_async")(method, url, body, headers, options)
+ #define rustg_http_check_request(req_id) call(RUST_G, "http_check_request")(req_id)
++/proc/rustg_create_async_http_client() return call(RUST_G, "start_http_client")()
++/proc/rustg_close_async_http_client() return call(RUST_G, "shutdown_http_client")()
+diff --git a/src/http.rs b/src/http.rs
+index 28c8345..430d1d9 100644
+--- a/src/http.rs
++++ b/src/http.rs
+@@ -1,8 +1,8 @@
+ use crate::{error::Result, jobs};
+-use once_cell::sync::Lazy;
+ use serde::{Deserialize, Serialize};
+ use std::collections::{BTreeMap, HashMap};
+ use std::io::Write;
++use std::cell::RefCell;
+ 
+ // ----------------------------------------------------------------------------
+ // Interface
+@@ -76,7 +76,9 @@ fn setup_http_client() -> reqwest::blocking::Client {
+     Client::builder().default_headers(headers).build().unwrap()
+ }
+ 
+-pub static HTTP_CLIENT: Lazy<reqwest::blocking::Client> = Lazy::new(setup_http_client);
++thread_local! {
++    pub static HTTP_CLIENT: RefCell<Option<reqwest::blocking::Client>> = RefCell::new(Some(setup_http_client()));
++}
+ 
+ // ----------------------------------------------------------------------------
+ // Request construction and execution
+@@ -93,38 +95,58 @@ fn construct_request(
+     headers: &str,
+     options: Option<&str>,
+ ) -> Result<RequestPrep> {
+-    let mut req = match method {
+-        "post" => HTTP_CLIENT.post(url),
+-        "put" => HTTP_CLIENT.put(url),
+-        "patch" => HTTP_CLIENT.patch(url),
+-        "delete" => HTTP_CLIENT.delete(url),
+-        "head" => HTTP_CLIENT.head(url),
+-        _ => HTTP_CLIENT.get(url),
+-    };
+-
+-    if !body.is_empty() {
+-        req = req.body(body.to_owned());
+-    }
+-
+-    if !headers.is_empty() {
+-        let headers: BTreeMap<&str, &str> = serde_json::from_str(headers)?;
+-        for (key, value) in headers {
+-            req = req.header(key, value);
+-        }
+-    }
+-
+-    let mut output_filename = None;
+-    if let Some(options) = options {
+-        let options: RequestOptions = serde_json::from_str(options)?;
+-        output_filename = options.output_filename;
+-        if let Some(fname) = options.body_filename {
+-            req = req.body(std::fs::File::open(fname)?);
++    HTTP_CLIENT.with(|cell| {
++        let borrow = cell.borrow_mut();
++        match &*borrow {
++            Some(client) => {
++                let mut req = match method {
++                    "post" => client.post(url),
++                    "put" => client.put(url),
++                    "patch" => client.patch(url),
++                    "delete" => client.delete(url),
++                    "head" => client.head(url),
++                    _ => client.get(url),
++                };
++
++                if !body.is_empty() {
++                    req = req.body(body.to_owned());
++                }
++
++                if !headers.is_empty() {
++                    let headers: BTreeMap<&str, &str> = serde_json::from_str(headers)?;
++                    for (key, value) in headers {
++                        req = req.header(key, value);
++                    }
++                }
++
++                let mut output_filename = None;
++                if let Some(options) = options {
++                    if options != "" {
++                        let options: RequestOptions = serde_json::from_str(options)?;
++                        output_filename = options.output_filename;
++                        if let Some(fname) = options.body_filename {
++                            req = req.body(std::fs::File::open(fname)?);
++                        }
++                    }
++                }
++
++                Ok(RequestPrep {
++                    req,
++                    output_filename,
++                })
++            }
++
++            // If we got here we royally fucked up
++            None => {
++                let client = setup_http_client();
++                let req = client.get("");
++                let output_filename = None;
++                Ok(RequestPrep {
++                    req,
++                    output_filename,
++                })
++            }
+         }
+-    }
+-
+-    Ok(RequestPrep {
+-        req,
+-        output_filename,
+     })
+ }
+ 
+@@ -156,3 +178,17 @@ fn submit_request(prep: RequestPrep) -> Result<String> {
+ 
+     Ok(serde_json::to_string(&resp)?)
+ }
++
++byond_fn! { start_http_client() {
++    HTTP_CLIENT.with(|cell| {
++        cell.replace(Some(setup_http_client()))
++    });
++    Some("")
++} }
++
++byond_fn! { shutdown_http_client() {
++    HTTP_CLIENT.with(|cell| {
++        cell.replace(None)
++    });
++    Some("")
++} }
+diff --git a/src/unzip.rs b/src/unzip.rs
+index 8ddc746..ed708be 100644
+--- a/src/unzip.rs
++++ b/src/unzip.rs
+@@ -11,9 +11,13 @@ struct UnzipPrep {
+ }
+ 
+ fn construct_unzip(url: &str, unzip_directory: &str) -> UnzipPrep {
+-    let req = HTTP_CLIENT.get(url);
+-    let dir_copy = unzip_directory.to_string();
++    let mut reqh = None;
++    HTTP_CLIENT.with(|client| {
++        reqh = Some(client.borrow_mut().as_ref().unwrap().get(url));
++    });
+ 
++    let dir_copy = unzip_directory.to_string();
++    let req = reqh.unwrap();
+     UnzipPrep {
+         req,
+         unzip_directory: dir_copy,
+-- 
+2.33.0.windows.2
+

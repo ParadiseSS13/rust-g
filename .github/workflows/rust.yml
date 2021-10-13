@@ -1,0 +1,97 @@
+# This workflow is based on tg-rust-g/.github/workflows/rust.yml
+# It has very minor modifications to be compatible with this
+name: rust-g
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: "Apply Paradise Patches"
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "CI User"
+          ./apply_patches.sh
+        shell: bash
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: i686-pc-windows-msvc
+      - name: Check (all features)
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: stable
+          command: check
+          args: --manifest-path paradise-rust-g/Cargo.toml --target i686-pc-windows-msvc --all-features
+      - name: Build (release) (default features)
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: stable
+          command: build
+          args: --manifest-path paradise-rust-g/Cargo.toml --target i686-pc-windows-msvc --release
+      - uses: actions/upload-artifact@v1
+        with:
+          name: rust_g.dll
+          path: paradise-rust-g/target/i686-pc-windows-msvc/release/rust_g.dll
+  build-linux:
+    runs-on: ubuntu-latest
+    env:
+      BYOND_MAJOR: 513
+      BYOND_MINOR: 1536
+      PKG_CONFIG_ALLOW_CROSS: 1
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: "Apply Paradise Patches"
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "CI User"
+          ./apply_patches.sh
+      - run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install g++-multilib zlib1g-dev:i386 libssl-dev:i386 pkg-config:i386
+          ./paradise-rust-g/scripts/install_byond.sh
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: i686-unknown-linux-gnu
+      - name: Check (all features)
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: stable
+          command: check
+          args: --manifest-path paradise-rust-g/Cargo.toml --target i686-unknown-linux-gnu --all-features
+      - name: Build (Debug) (all features)
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: stable
+          command: build
+          args: --manifest-path paradise-rust-g/Cargo.toml --target i686-unknown-linux-gnu --all-features
+      - name: Run tests (all features)
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: stable
+          command: test
+          args: --manifest-path paradise-rust-g/Cargo.toml --target i686-unknown-linux-gnu --all-features
+        env:
+          BYOND_BIN: /home/runner/BYOND/byond/bin
+      - name: Build (release) (default features)
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: stable
+          command: build
+          args: --manifest-path paradise-rust-g/Cargo.toml --target i686-unknown-linux-gnu --release
+      - uses: actions/upload-artifact@v1
+        with:
+          name: rust_g
+          path: paradise-rust-g/target/i686-unknown-linux-gnu/release/librust_g.so
