@@ -1,11 +1,11 @@
-From a5fb0665885e2c297d4c4d2accf58dd34afac723 Mon Sep 17 00:00:00 2001
+From 4a5eab77486dd2bccac8eb7e345cb9490db124e8 Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
 Date: Wed, 13 Oct 2021 22:04:37 +0100
 Subject: [PATCH] Paradise Logging Changes
 
 
 diff --git a/dmsrc/log.dm b/dmsrc/log.dm
-index d0380a5..9faa561 100644
+index d0380a5..f3be525 100644
 --- a/dmsrc/log.dm
 +++ b/dmsrc/log.dm
 @@ -1,2 +1,2 @@
@@ -13,19 +13,19 @@ index d0380a5..9faa561 100644
 +#define rustg_log_write(fname, text) call(RUST_G, "log_write")(fname, text)
  /proc/rustg_log_close_all() return call(RUST_G, "log_close_all")()
 diff --git a/src/log.rs b/src/log.rs
-index 41e86aa..8e43147 100644
+index 9bd019b..6722353 100644
 --- a/src/log.rs
 +++ b/src/log.rs
 @@ -14,7 +14,7 @@ thread_local! {
      static FILE_MAP: RefCell<HashMap<OsString, File>> = RefCell::new(HashMap::new());
  }
  
--byond_fn! { log_write(path, data, ...rest) {
-+byond_fn! { log_write(path, data) {
+-byond_fn!(fn log_write(path, data, ...rest) {
++byond_fn!(fn log_write(path, data) {
      FILE_MAP.with(|cell| -> Result<()> {
          // open file
          let mut map = cell.borrow_mut();
-@@ -24,20 +24,10 @@ byond_fn! { log_write(path, data, ...rest) {
+@@ -24,20 +24,10 @@ byond_fn!(fn log_write(path, data, ...rest) {
              Entry::Vacant(elem) => elem.insert(open(path)?),
          };
  

@@ -1,32 +1,32 @@
-From 7a73222a05051a5b839034a65f9575adf052e29d Mon Sep 17 00:00:00 2001
+From ab1d942ac45e1b14ffaa13c79e2a44e5c2d2f54c Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
 Date: Wed, 13 Oct 2021 22:04:30 +0100
 Subject: [PATCH] Paradise Version Changes
 
 
 diff --git a/Cargo.lock b/Cargo.lock
-index 94f4437..9f52312 100644
+index cd4001f..85313cc 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
-@@ -1502,7 +1502,7 @@ dependencies = [
+@@ -1544,7 +1544,7 @@ dependencies = [
  
  [[package]]
  name = "rust-g"
--version = "0.5.0"
-+version = "0.5.0-P"
+-version = "0.6.0"
++version = "0.6.0-P"
  dependencies = [
+  "aho-corasick",
   "base64 0.13.0",
-  "chrono",
 diff --git a/Cargo.toml b/Cargo.toml
-index 785f036..6fac5ec 100644
+index 1cbe8f5..68a7029 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
 @@ -1,11 +1,11 @@
  [package]
  name = "rust-g"
  edition = "2018"
--version = "0.5.0"
-+version = "0.5.0-P"
+-version = "0.6.0"
++version = "0.6.0-P"
  authors = ["Bjorn Neergaard <bjorn@neersighted.com>"]
 -repository = "https://github.com/tgstation/rust-g"
 +repository = "https://github.com/ParadiseSS13/rust-g"
