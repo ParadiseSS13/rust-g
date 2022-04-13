@@ -1,4 +1,4 @@
-From 7df53fb21054bff170a1ecc9d11dcce928f670d6 Mon Sep 17 00:00:00 2001
+From 8a6dadb046618da8cbd32d6651d3e27d36da9d9d Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
 Date: Thu, 14 Oct 2021 15:50:14 +0100
 Subject: [PATCH] Paradise HTTP Module Tweaks
@@ -15,7 +15,7 @@ index e74e6d0..ba37ab3 100644
 +/proc/rustg_create_async_http_client() return call(RUST_G, "start_http_client")()
 +/proc/rustg_close_async_http_client() return call(RUST_G, "shutdown_http_client")()
 diff --git a/src/http.rs b/src/http.rs
-index 291e1d1..b02b580 100644
+index 5da2ff1..426f869 100644
 --- a/src/http.rs
 +++ b/src/http.rs
 @@ -1,8 +1,8 @@
@@ -28,7 +28,7 @@ index 291e1d1..b02b580 100644
  
  // ----------------------------------------------------------------------------
  // Interface
-@@ -76,7 +76,9 @@ fn setup_http_client() -> reqwest::blocking::Client {
+@@ -78,7 +78,9 @@ fn setup_http_client() -> reqwest::blocking::Client {
      Client::builder().default_headers(headers).build().unwrap()
  }
  
@@ -39,9 +39,9 @@ index 291e1d1..b02b580 100644
  
  // ----------------------------------------------------------------------------
  // Request construction and execution
-@@ -93,38 +95,58 @@ fn construct_request(
+@@ -95,38 +97,56 @@ fn construct_request(
      headers: &str,
-     options: Option<&str>,
+     options: &str,
  ) -> Result<RequestPrep> {
 -    let mut req = match method {
 -        "post" => HTTP_CLIENT.post(url),
@@ -60,6 +60,15 @@ index 291e1d1..b02b580 100644
 -        let headers: BTreeMap<&str, &str> = serde_json::from_str(headers)?;
 -        for (key, value) in headers {
 -            req = req.header(key, value);
+-        }
+-    }
+-
+-    let mut output_filename = None;
+-    if !options.is_empty() {
+-        let options: RequestOptions = serde_json::from_str(options)?;
+-        output_filename = options.output_filename;
+-        if let Some(fname) = options.body_filename {
+-            req = req.body(std::fs::File::open(fname)?);
 +    HTTP_CLIENT.with(|cell| {
 +        let borrow = cell.borrow_mut();
 +        match &*borrow {
@@ -85,13 +94,11 @@ index 291e1d1..b02b580 100644
 +                }
 +
 +                let mut output_filename = None;
-+                if let Some(options) = options {
-+                    if options != "" {
-+                        let options: RequestOptions = serde_json::from_str(options)?;
-+                        output_filename = options.output_filename;
-+                        if let Some(fname) = options.body_filename {
-+                            req = req.body(std::fs::File::open(fname)?);
-+                        }
++                if !options.is_empty() {
++                    let options: RequestOptions = serde_json::from_str(options)?;
++                    output_filename = options.output_filename;
++                    if let Some(fname) = options.body_filename {
++                        req = req.body(std::fs::File::open(fname)?);
 +                    }
 +                }
 +
@@ -114,39 +121,30 @@ index 291e1d1..b02b580 100644
          }
 -    }
 -
--    let mut output_filename = None;
--    if let Some(options) = options {
--        let options: RequestOptions = serde_json::from_str(options)?;
--        output_filename = options.output_filename;
--        if let Some(fname) = options.body_filename {
--            req = req.body(std::fs::File::open(fname)?);
--        }
--    }
--
 -    Ok(RequestPrep {
 -        req,
 -        output_filename,
      })
  }
  
-@@ -156,3 +178,17 @@ fn submit_request(prep: RequestPrep) -> Result<String> {
+@@ -158,3 +178,17 @@ fn submit_request(prep: RequestPrep) -> Result<String> {
  
      Ok(serde_json::to_string(&resp)?)
  }
 +
-+byond_fn! { start_http_client() {
++byond_fn!(fn start_http_client() {
 +    HTTP_CLIENT.with(|cell| {
 +        cell.replace(Some(setup_http_client()))
 +    });
 +    Some("")
-+} }
++});
 +
-+byond_fn! { shutdown_http_client() {
++byond_fn!(fn shutdown_http_client() {
 +    HTTP_CLIENT.with(|cell| {
 +        cell.replace(None)
 +    });
 +    Some("")
-+} }
++});
 diff --git a/src/unzip.rs b/src/unzip.rs
 index 16b5009..9b5d5c5 100644
 --- a/src/unzip.rs
