@@ -1,4 +1,4 @@
-From e29b716bd02019218e9b9ff5cedf280f694609ca Mon Sep 17 00:00:00 2001
+From e875d0969096fc18173d2a6f55ec3283df3cd13b Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
 Date: Thu, 14 Apr 2022 02:11:23 +0100
 Subject: [PATCH] Paradise TPS Operations
@@ -33,7 +33,7 @@ index 85313cc..7ee3a3a 100644
   "dashmap",
   "dmsort",
 diff --git a/Cargo.toml b/Cargo.toml
-index 68a7029..0181e9f 100644
+index 68a7029..f067284 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
 @@ -45,9 +45,10 @@ rand = {version = "0.8", optional = true}
@@ -44,7 +44,7 @@ index 68a7029..0181e9f 100644
  
  [features]
 -default = ["acreplace", "cellularnoise", "dmi", "file", "git", "http", "json", "log", "noise", "sql", "time", "toml", "url"]
-+default = ["acreplace", "cellularnoise", "dmi", "file", "git", "http", "json", "log", "noise", "sql", "time", "toml", "url", "tps"]
++default = ["acreplace", "cellularnoise", "dmi", "file", "git", "http", "json", "log", "noise", "sql", "time", "toml", "tps", "url"]
  
  # default features
  acreplace = ["aho-corasick"]
