@@ -1,0 +1,171 @@
+From e29b716bd02019218e9b9ff5cedf280f694609ca Mon Sep 17 00:00:00 2001
+From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
+Date: Thu, 14 Apr 2022 02:11:23 +0100
+Subject: [PATCH] Paradise TPS Operations
+
+
+diff --git a/Cargo.lock b/Cargo.lock
+index 85313cc..7ee3a3a 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -215,6 +215,15 @@ dependencies = [
+  "winapi",
+ ]
+ 
++[[package]]
++name = "circular-queue"
++version = "0.2.6"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "1d34327ead1c743a10db339de35fb58957564b99d248a67985c55638b22c59b5"
++dependencies = [
++ "version_check",
++]
++
+ [[package]]
+ name = "color_quant"
+ version = "1.1.0"
+@@ -1549,6 +1558,7 @@ dependencies = [
+  "aho-corasick",
+  "base64 0.13.0",
+  "chrono",
++ "circular-queue",
+  "const-random",
+  "dashmap",
+  "dmsort",
+diff --git a/Cargo.toml b/Cargo.toml
+index 68a7029..0181e9f 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -45,9 +45,10 @@ rand = {version = "0.8", optional = true}
+ dmsort = {version = "1.0.0", optional = true }
+ toml-dep = { version = "0.5.8", package="toml", optional = true }
+ aho-corasick = { version = "0.7.18", optional = true}
++circular-queue = { version = "0.2.6", optional = true }
+ 
+ [features]
+-default = ["acreplace", "cellularnoise", "dmi", "file", "git", "http", "json", "log", "noise", "sql", "time", "toml", "url"]
++default = ["acreplace", "cellularnoise", "dmi", "file", "git", "http", "json", "log", "noise", "sql", "time", "toml", "url", "tps"]
+ 
+ # default features
+ acreplace = ["aho-corasick"]
+@@ -62,6 +63,7 @@ sql = ["mysql", "serde", "serde_json", "once_cell", "dashmap", "jobs"]
+ time = []
+ toml = ["serde", "serde_json", "toml-dep"]
+ url = ["url-dep", "percent-encoding"]
++tps = ["circular-queue"]
+ 
+ # additional features
+ hash = ["base64", "const-random", "md-5", "hex", "sha-1", "sha2",  "twox-hash", "serde", "serde_json"]
+diff --git a/dmsrc/tps.dm b/dmsrc/tps.dm
+new file mode 100644
+index 0000000..9b5af42
+--- /dev/null
++++ b/dmsrc/tps.dm
+@@ -0,0 +1,4 @@
++// TPS Operations //
++#define rustg_tps_setup_buffers(fps) call(RUST_G, "setup_buffers")("[fps]")
++#define rustg_tps_record_tps(tps) call(RUST_G, "record_tps")("[tps]")
++/proc/rustg_tps_read() return call(RUST_G, "read_averages")()
+diff --git a/src/lib.rs b/src/lib.rs
+index d143957..c609055 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -36,6 +36,8 @@ pub mod sql;
+ pub mod time;
+ #[cfg(feature = "toml")]
+ pub mod toml;
++#[cfg(feature = "tps")]
++pub mod tps;
+ #[cfg(feature = "unzip")]
+ pub mod unzip;
+ #[cfg(feature = "url")]
+diff --git a/src/tps.rs b/src/tps.rs
+new file mode 100644
+index 0000000..8d10ff1
+--- /dev/null
++++ b/src/tps.rs
+@@ -0,0 +1,81 @@
++extern crate circular_queue;
++
++use std::cell::RefCell;
++use circular_queue::CircularQueue;
++
++thread_local!(
++    static BUF1M: RefCell<CircularQueue<f32>> = RefCell::new(CircularQueue::with_capacity(1));
++    static BUF5M: RefCell<CircularQueue<f32>> = RefCell::new(CircularQueue::with_capacity(1));
++    static BUF15M: RefCell<CircularQueue<f32>> = RefCell::new(CircularQueue::with_capacity(1));
++    static FPS: RefCell<f32> = RefCell::new(1.0)
++);
++
++byond_fn!(fn setup_buffers(fps) {
++    // Calculate ticks in 1 minute
++    let tp1m = fps.parse::<usize>().unwrap() * 60;
++    FPS.with(|buffer| {
++        buffer.replace(fps.parse::<f32>().unwrap());
++    });
++    BUF1M.with(|buffer| {
++        buffer.replace(CircularQueue::with_capacity(tp1m));
++    });
++    BUF5M.with(|buffer| {
++        buffer.replace(CircularQueue::with_capacity(tp1m * 5));
++    });
++    BUF15M.with(|buffer| {
++        buffer.replace(CircularQueue::with_capacity(tp1m * 15));
++    });
++    Some("")
++});
++
++byond_fn!(fn record_tps(tickuse) {
++    let mut fps = 0.0;
++
++    FPS.with(|buffer| {
++        fps = *buffer.borrow_mut();
++    });
++
++    // Tick usage to a float
++    let tuf: f32 = tickuse.parse::<f32>().unwrap();
++
++    // Do not let the code /0
++    if tuf == 0.0 {
++        return Some("");
++    }
++
++    // And calculate TPS from that
++    let tpsf = fps.min(fps / (tuf / 100.0));
++
++    BUF1M.with(|buffer| {
++        buffer.borrow_mut().push(tpsf);
++    });
++    BUF5M.with(|buffer| {
++        buffer.borrow_mut().push(tpsf);
++    });
++    BUF15M.with(|buffer| {
++        buffer.borrow_mut().push(tpsf);
++    });
++    Some("")
++});
++
++byond_fn!(fn read_averages() {
++    let mut average_1m: f32 = 0.0;
++    let mut average_5m: f32 = 0.0;
++    let mut average_15m: f32 = 0.0;
++    BUF1M.with(|buffer| {
++        let rb = buffer.borrow_mut();
++        average_1m = rb.iter().sum::<f32>() as f32 / rb.len() as f32;
++    });
++    BUF5M.with(|buffer| {
++        let rb = buffer.borrow_mut();
++        average_5m = rb.iter().sum::<f32>() as f32 / rb.len() as f32;
++    });
++    BUF15M.with(|buffer| {
++        let rb = buffer.borrow_mut();
++        average_15m = rb.iter().sum::<f32>() as f32 / rb.len() as f32;
++    });
++
++    let outstr = format!("{:.1},{:.1},{:.1}", average_1m, average_5m, average_15m);
++
++    Some(outstr)
++});
+-- 
+2.35.2.windows.1
+
