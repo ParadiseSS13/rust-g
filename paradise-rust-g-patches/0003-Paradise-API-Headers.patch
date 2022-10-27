@@ -1,127 +1,202 @@
-From 11f3098faf5c6c388b6a24f548ef8cf2075b7321 Mon Sep 17 00:00:00 2001
+From 1302fc6aa9a84030c7f27a21f97311267d0b1691 Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
 Date: Wed, 13 Oct 2021 22:11:10 +0100
 Subject: [PATCH] Paradise API Headers
 
 
+diff --git a/dmsrc/acreplace.dm b/dmsrc/acreplace.dm
+index 08107f0..3a8013a 100644
+--- a/dmsrc/acreplace.dm
++++ b/dmsrc/acreplace.dm
+@@ -1,3 +1,4 @@
++// Aho-Corasick Replace //
+ 
+ /**
+  * Sets up the Aho-Corasick automaton with its default options.
 diff --git a/dmsrc/cellularnoise.dm b/dmsrc/cellularnoise.dm
-index 2f48dd9..61303f7 100644
+index 2f48dd9..387d47a 100644
 --- a/dmsrc/cellularnoise.dm
 +++ b/dmsrc/cellularnoise.dm
 @@ -1,3 +1,5 @@
-+// Cellular Noise Operations //
++// Cellular Noise //
 +
  /**
   * This proc generates a cellular automata noise grid which can be used in procedural generation methods.
   *
+diff --git a/dmsrc/dbpnoise.dm b/dmsrc/dbpnoise.dm
+index 6cee0da..74575bf 100644
+--- a/dmsrc/dbpnoise.dm
++++ b/dmsrc/dbpnoise.dm
+@@ -1,3 +1,5 @@
++// Grid Perlin Noise //
++
+ /**
+  * This proc generates a grid of perlin-like noise
+  *
 diff --git a/dmsrc/dmi.dm b/dmsrc/dmi.dm
-index 6eed4e5..d3f271b 100644
+index 6eed4e5..8474661 100644
 --- a/dmsrc/dmi.dm
 +++ b/dmsrc/dmi.dm
-@@ -1,3 +1,4 @@
+@@ -1,3 +1,5 @@
 +// DMI Operations //
++
  #define rustg_dmi_strip_metadata(fname) call(RUST_G, "dmi_strip_metadata")(fname)
  #define rustg_dmi_create_png(path, width, height, data) call(RUST_G, "dmi_create_png")(path, width, height, data)
  #define rustg_dmi_resize_png(path, width, height, resizetype) call(RUST_G, "dmi_resize_png")(path, width, height, resizetype)
 diff --git a/dmsrc/file.dm b/dmsrc/file.dm
-index e0c3033..9692a01 100644
+index cfc3258..1285c79 100644
 --- a/dmsrc/file.dm
 +++ b/dmsrc/file.dm
-@@ -1,3 +1,4 @@
+@@ -1,3 +1,5 @@
 +// File Operations //
++
  #define rustg_file_read(fname) call(RUST_G, "file_read")(fname)
  #define rustg_file_exists(fname) call(RUST_G, "file_exists")(fname)
  #define rustg_file_write(text, fname) call(RUST_G, "file_write")(text, fname)
 diff --git a/dmsrc/git.dm b/dmsrc/git.dm
-index 0dc5edc..b3b8a4b 100644
+index 0dc5edc..942e60f 100644
 --- a/dmsrc/git.dm
 +++ b/dmsrc/git.dm
-@@ -1,2 +1,3 @@
+@@ -1,2 +1,4 @@
 +// Git Operations //
++
  #define rustg_git_revparse(rev) call(RUST_G, "rg_git_revparse")(rev)
  #define rustg_git_commit_date(rev) call(RUST_G, "rg_git_commit_date")(rev)
 diff --git a/dmsrc/hash.dm b/dmsrc/hash.dm
-index 867b00e..673ee4e 100644
+index 867b00e..757d58e 100644
 --- a/dmsrc/hash.dm
 +++ b/dmsrc/hash.dm
-@@ -1,3 +1,4 @@
-+// Hashing Operations //
+@@ -1,3 +1,5 @@
++// Hashing Functions //
++
  #define rustg_hash_string(algorithm, text) call(RUST_G, "hash_string")(algorithm, text)
  #define rustg_hash_file(algorithm, fname) call(RUST_G, "hash_file")(algorithm, fname)
  #define rustg_hash_generate_totp(seed) call(RUST_G, "generate_totp")(seed)
 diff --git a/dmsrc/http.dm b/dmsrc/http.dm
-index 93d964b..c756919 100644
+index 93d964b..c1ef9fd 100644
 --- a/dmsrc/http.dm
 +++ b/dmsrc/http.dm
-@@ -1,3 +1,4 @@
+@@ -1,3 +1,5 @@
 +// HTTP Operations //
++
  #define RUSTG_HTTP_METHOD_GET "get"
  #define RUSTG_HTTP_METHOD_PUT "put"
  #define RUSTG_HTTP_METHOD_DELETE "delete"
 diff --git a/dmsrc/jobs.dm b/dmsrc/jobs.dm
-index 499314b..c034d3c 100644
+index 499314b..501c20f 100644
 --- a/dmsrc/jobs.dm
 +++ b/dmsrc/jobs.dm
-@@ -1,3 +1,4 @@
-+// Jobs Subsystem Operations //
+@@ -1,3 +1,5 @@
++// Jobs Defines //
++
  #define RUSTG_JOB_NO_RESULTS_YET "NO RESULTS YET"
  #define RUSTG_JOB_NO_SUCH_JOB "NO SUCH JOB"
  #define RUSTG_JOB_ERROR "JOB PANICKED"
 diff --git a/dmsrc/json.dm b/dmsrc/json.dm
-index 80a1853..013d2d1 100644
+index 80a1853..b33029a 100644
 --- a/dmsrc/json.dm
 +++ b/dmsrc/json.dm
-@@ -1 +1,2 @@
+@@ -1 +1,3 @@
 +// JSON Operations //
++
  #define rustg_json_is_valid(text) (call(RUST_G, "json_is_valid")(text) == "true")
 diff --git a/dmsrc/log.dm b/dmsrc/log.dm
-index 9faa561..8e2000a 100644
+index f3be525..4b113a2 100644
 --- a/dmsrc/log.dm
 +++ b/dmsrc/log.dm
-@@ -1,2 +1,3 @@
+@@ -1,2 +1,4 @@
 +// Logging Operations //
++
  #define rustg_log_write(fname, text) call(RUST_G, "log_write")(fname, text)
- /proc/rustg_log_close_all() return call(RUST_G, "log_close_all")()
+-/proc/rustg_log_close_all() return call(RUST_G, "log_close_all")()
++/proc/rustg_log_close_all() return call(RUST_G, "log_close_all")()
 diff --git a/dmsrc/noise.dm b/dmsrc/noise.dm
-index 6277a46..0192899 100644
+index 6277a46..935356d 100644
 --- a/dmsrc/noise.dm
 +++ b/dmsrc/noise.dm
-@@ -1 +1,2 @@
+@@ -1 +1,3 @@
 +// Noise Operations //
++
  #define rustg_noise_get_at_coordinates(seed, x, y) call(RUST_G, "noise_get_at_coordinates")(seed, x, y)
+diff --git a/dmsrc/pathfinder.dm b/dmsrc/pathfinder.dm
+index be5ac80..292aec2 100644
+--- a/dmsrc/pathfinder.dm
++++ b/dmsrc/pathfinder.dm
+@@ -1,3 +1,5 @@
++// AStar Operations //
++
+ /**
+  * Register a list of nodes into a rust library. This list of nodes must have been serialized in a json.
+  * Node {// Index of this node in the list of nodes
+diff --git a/dmsrc/redis-pubsub.dm b/dmsrc/redis-pubsub.dm
+index 2524bb5..47e0694 100644
+--- a/dmsrc/redis-pubsub.dm
++++ b/dmsrc/redis-pubsub.dm
+@@ -1,3 +1,5 @@
++// Redis PubSub Operations //
++
+ #define RUSTG_REDIS_ERROR_CHANNEL "RUSTG_REDIS_ERROR_CHANNEL"
+ 
+ #define rustg_redis_connect(addr) call(RUST_G, "redis_connect")(addr)
 diff --git a/dmsrc/sql.dm b/dmsrc/sql.dm
-index d3bfc49..3f1d92f 100644
+index d3bfc49..803dd97 100644
 --- a/dmsrc/sql.dm
 +++ b/dmsrc/sql.dm
-@@ -1,3 +1,4 @@
-+// SQL Opeartions //
+@@ -1,3 +1,5 @@
++// SQL Operations //
++
  #define rustg_sql_connect_pool(options) call(RUST_G, "sql_connect_pool")(options)
  #define rustg_sql_query_async(handle, query, params) call(RUST_G, "sql_query_async")(handle, query, params)
  #define rustg_sql_query_blocking(handle, query, params) call(RUST_G, "sql_query_blocking")(handle, query, params)
+diff --git a/dmsrc/time.dm b/dmsrc/time.dm
+index 56e1b0c..5a76f67 100644
+--- a/dmsrc/time.dm
++++ b/dmsrc/time.dm
+@@ -1,3 +1,5 @@
++// Time Tracking Functions //
++
+ #define rustg_time_microseconds(id) text2num(call(RUST_G, "time_microseconds")(id))
+ #define rustg_time_milliseconds(id) text2num(call(RUST_G, "time_milliseconds")(id))
+ #define rustg_time_reset(id) call(RUST_G, "time_reset")(id)
 diff --git a/dmsrc/toml.dm b/dmsrc/toml.dm
-index e403301..46010e5 100644
+index c9a6338..e218b92 100644
 --- a/dmsrc/toml.dm
 +++ b/dmsrc/toml.dm
-@@ -1 +1,2 @@
+@@ -1,3 +1,5 @@
 +// TOML Operations //
- #define rustg_read_toml_file(path) json_decode(call(RUST_G, "toml_file_to_json")(path) || "null")
++
+ #define rustg_raw_read_toml_file(path) json_decode(call(RUST_G, "toml_file_to_json")(path) || "null")
+ 
+ /proc/rustg_read_toml_file(path)
 diff --git a/dmsrc/unzip.dm b/dmsrc/unzip.dm
-index ce945b1..970d673 100644
+index ce945b1..d8be8b1 100644
 --- a/dmsrc/unzip.dm
 +++ b/dmsrc/unzip.dm
-@@ -1,2 +1,3 @@
-+// Unzip Operations //
+@@ -1,2 +1,4 @@
++// ZIP File Operations //
++
  #define rustg_unzip_download_async(url, unzip_directory) call(RUST_G, "unzip_download_async")(url, unzip_directory)
  #define rustg_unzip_check(job_id) call(RUST_G, "unzip_check")("[job_id]")
 diff --git a/dmsrc/url.dm b/dmsrc/url.dm
-index b56131b..5e59114 100644
+index b56131b..c83f8aa 100644
 --- a/dmsrc/url.dm
 +++ b/dmsrc/url.dm
-@@ -1,3 +1,4 @@
-+// URL Encoder/Decoder Operations //
+@@ -1,3 +1,5 @@
++// URL Operations //
++
  #define rustg_url_encode(text) call(RUST_G, "url_encode")("[text]")
  #define rustg_url_decode(text) call(RUST_G, "url_decode")(text)
  
+diff --git a/dmsrc/worleynoise.dm b/dmsrc/worleynoise.dm
+index 1ff347c..9864a5b 100644
+--- a/dmsrc/worleynoise.dm
++++ b/dmsrc/worleynoise.dm
+@@ -1,3 +1,5 @@
++// Worley Noise Operations //
++
+ /**
+  * This proc generates a noise grid using worley noise algorithm
+  *
 -- 
-2.33.0.windows.2
+2.17.1
 

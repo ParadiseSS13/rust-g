@@ -1,8 +1,19 @@
 #!/bin/sh
 
-PS1="$"
 basedir=`pwd`
-echo "Rebuilding projects.... "
+tg_tag="1.1.0"
+
+echo "Checking for TG rust-g repo.."
+if [ ! -d "./tg-rust-g" ] 
+then
+    echo "TG rust-g does not exist locally. Cloning..."
+    git clone https://github.com/tgstation/rust-g.git tg-rust-g
+fi
+
+echo "Setting up project... "
+
+cd "$basedir/tg-rust-g"
+git reset --hard $tg_tag
 
 apply_patch() {
     what=$1

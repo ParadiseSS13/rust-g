@@ -1,14 +1,14 @@
-From 8a6dadb046618da8cbd32d6651d3e27d36da9d9d Mon Sep 17 00:00:00 2001
+From 38e84cfb002ed5a405ec2cb126388562e174130c Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
 Date: Thu, 14 Oct 2021 15:50:14 +0100
 Subject: [PATCH] Paradise HTTP Module Tweaks
 
 
 diff --git a/dmsrc/http.dm b/dmsrc/http.dm
-index e74e6d0..ba37ab3 100644
+index c1ef9fd..38ef9d2 100644
 --- a/dmsrc/http.dm
 +++ b/dmsrc/http.dm
-@@ -8,3 +8,5 @@
+@@ -9,3 +9,5 @@
  #define rustg_http_request_blocking(method, url, body, headers, options) call(RUST_G, "http_request_blocking")(method, url, body, headers, options)
  #define rustg_http_request_async(method, url, body, headers, options) call(RUST_G, "http_request_async")(method, url, body, headers, options)
  #define rustg_http_check_request(req_id) call(RUST_G, "http_check_request")(req_id)
@@ -166,5 +166,5 @@ index 16b5009..9b5d5c5 100644
          req,
          unzip_directory: dir_copy,
 -- 
-2.33.0.windows.2
+2.17.1
 
