@@ -1,7 +1,7 @@
 #!/bin/sh
 
 basedir=`pwd`
-tg_tag="1.1.0"
+tg_tag="1.2.0"
 
 echo "Checking for TG rust-g repo.."
 if [ ! -d "./tg-rust-g" ] 

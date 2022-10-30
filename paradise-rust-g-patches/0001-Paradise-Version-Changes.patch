@@ -1,33 +1,37 @@
-From 6ccf0ab4e818be9b0916b27858a9e0e5fc56c204 Mon Sep 17 00:00:00 2001
+From 124eccba73fa986f9d9ceffa7a8a69bd97eae218 Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
 Date: Wed, 13 Oct 2021 22:04:30 +0100
 Subject: [PATCH] Paradise Version Changes
 
 
 diff --git a/Cargo.lock b/Cargo.lock
-index c79b9e7..15922c1 100644
+index ab158a2..f77d99f 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
 @@ -1999,7 +1999,7 @@ dependencies = [
  
  [[package]]
  name = "rust-g"
--version = "1.0.2"
-+version = "1.0.2-P"
+-version = "1.2.0"
++version = "1.2.0-P"
  dependencies = [
   "aho-corasick",
   "base64",
 diff --git a/Cargo.toml b/Cargo.toml
-index 95d6d1a..780a84c 100644
+index 121c252..b2166a7 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
-@@ -1,11 +1,11 @@
+@@ -1,15 +1,15 @@
  [package]
  name = "rust-g"
  edition = "2021"
--version = "1.0.2"
-+version = "1.0.2-P"
- authors = ["Bjorn Neergaard <bjorn@neersighted.com>", "Tad Hardesty <tad@platymuus.com>", "rust-g maintainer team"]
+-version = "1.2.0"
++version = "1.2.0-P"
+ authors = [
+     "Bjorn Neergaard <bjorn@neersighted.com>",
+     "Tad Hardesty <tad@platymuus.com>",
+     "rust-g maintainer team",
+ ]
 -repository = "https://github.com/tgstation/rust-g"
 +repository = "https://github.com/ParadiseSS13/rust-g"
  license = "MIT"
@@ -37,5 +41,5 @@ index 95d6d1a..780a84c 100644
  [lib]
  crate-type = ["cdylib"]
 -- 
-2.17.1
+2.35.2.windows.1
 
