@@ -1,11 +1,11 @@
-From 9a11463e8917f08504ba270f8c0ed07c204840e4 Mon Sep 17 00:00:00 2001
+From 81098ac672c0e1f44dfb7d511453439c4799ed54 Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
 Date: Thu, 14 Oct 2021 15:50:14 +0100
 Subject: [PATCH] Paradise HTTP Module Tweaks
 
 
 diff --git a/dmsrc/http.dm b/dmsrc/http.dm
-index eba7d68..042522f 100644
+index eba7d68..fdcf7a7 100644
 --- a/dmsrc/http.dm
 +++ b/dmsrc/http.dm
 @@ -1,5 +1,5 @@
@@ -20,8 +20,8 @@ index eba7d68..042522f 100644
  #define rustg_http_request_blocking(method, url, body, headers, options) RUSTG_CALL(RUST_G, "http_request_blocking")(method, url, body, headers, options)
  #define rustg_http_request_async(method, url, body, headers, options) RUSTG_CALL(RUST_G, "http_request_async")(method, url, body, headers, options)
  #define rustg_http_check_request(req_id) RUSTG_CALL(RUST_G, "http_check_request")(req_id)
-+/proc/rustg_create_async_http_client() return call(RUST_G, "start_http_client")()
-+/proc/rustg_close_async_http_client() return call(RUST_G, "shutdown_http_client")()
++/proc/rustg_create_async_http_client() return RUSTG_CALL(RUST_G, "start_http_client")()
++/proc/rustg_close_async_http_client() return RUSTG_CALL(RUST_G, "shutdown_http_client")()
 diff --git a/src/http.rs b/src/http.rs
 index 5da2ff1..426f869 100644
 --- a/src/http.rs
