@@ -1,17 +1,18 @@
-From 4a5eab77486dd2bccac8eb7e345cb9490db124e8 Mon Sep 17 00:00:00 2001
+From a7d7ad5361239e00852692abc39c8404383290e4 Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
 Date: Wed, 13 Oct 2021 22:04:37 +0100
 Subject: [PATCH] Paradise Logging Changes
 
 
 diff --git a/dmsrc/log.dm b/dmsrc/log.dm
-index d0380a5..f3be525 100644
+index 1faadc8..bbc8fe6 100644
 --- a/dmsrc/log.dm
 +++ b/dmsrc/log.dm
 @@ -1,2 +1,2 @@
--#define rustg_log_write(fname, text, format) call(RUST_G, "log_write")(fname, text, format)
-+#define rustg_log_write(fname, text) call(RUST_G, "log_write")(fname, text)
- /proc/rustg_log_close_all() return call(RUST_G, "log_close_all")()
+-#define rustg_log_write(fname, text, format) RUSTG_CALL(RUST_G, "log_write")(fname, text, format)
+-/proc/rustg_log_close_all() return RUSTG_CALL(RUST_G, "log_close_all")()
++#define rustg_log_write(fname, text) RUSTG_CALL(RUST_G, "log_write")(fname, text)
++/proc/rustg_log_close_all() return RUSTG_CALL(RUST_G, "log_close_all")()
 diff --git a/src/log.rs b/src/log.rs
 index 9bd019b..6722353 100644
 --- a/src/log.rs
@@ -51,5 +52,5 @@ index 9bd019b..6722353 100644
  
          Ok(())
 -- 
-2.33.0.windows.2
+2.35.2.windows.1
 
