@@ -1,32 +1,32 @@
-From 124eccba73fa986f9d9ceffa7a8a69bd97eae218 Mon Sep 17 00:00:00 2001
+From 85c987757fe9a259a370c79333b3e57ef820dcf5 Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
-Date: Wed, 13 Oct 2021 22:04:30 +0100
+Date: Tue, 24 Oct 2023 21:44:45 +0100
 Subject: [PATCH] Paradise Version Changes
 
 
 diff --git a/Cargo.lock b/Cargo.lock
-index ab158a2..f77d99f 100644
+index afdaa60..b276d34 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
-@@ -1999,7 +1999,7 @@ dependencies = [
+@@ -2166,7 +2166,7 @@ dependencies = [
  
  [[package]]
  name = "rust-g"
--version = "1.2.0"
-+version = "1.2.0-P"
+-version = "3.0.0"
++version = "3.0.0-P"
  dependencies = [
   "aho-corasick",
   "base64",
 diff --git a/Cargo.toml b/Cargo.toml
-index 121c252..b2166a7 100644
+index 958fbd4..e3965dd 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
 @@ -1,15 +1,15 @@
  [package]
  name = "rust-g"
  edition = "2021"
--version = "1.2.0"
-+version = "1.2.0-P"
+-version = "3.0.0"
++version = "3.0.0-P"
  authors = [
      "Bjorn Neergaard <bjorn@neersighted.com>",
      "Tad Hardesty <tad@platymuus.com>",
@@ -41,5 +41,5 @@ index 121c252..b2166a7 100644
  [lib]
  crate-type = ["cdylib"]
 -- 
-2.35.2.windows.1
+2.41.0.windows.3
 

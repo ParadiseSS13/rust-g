@@ -1,21 +1,13 @@
-From 81098ac672c0e1f44dfb7d511453439c4799ed54 Mon Sep 17 00:00:00 2001
+From edf520da0a3f4c4b9141cde63918b23dcc3f6dac Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
 Date: Thu, 14 Oct 2021 15:50:14 +0100
 Subject: [PATCH] Paradise HTTP Module Tweaks
 
 
 diff --git a/dmsrc/http.dm b/dmsrc/http.dm
-index eba7d68..fdcf7a7 100644
+index eba7d68..c880334 100644
 --- a/dmsrc/http.dm
 +++ b/dmsrc/http.dm
-@@ -1,5 +1,5 @@
--// HTTP Operations //
--
-+// HTTP Operations //
-+
- #define RUSTG_HTTP_METHOD_GET "get"
- #define RUSTG_HTTP_METHOD_PUT "put"
- #define RUSTG_HTTP_METHOD_DELETE "delete"
 @@ -9,3 +9,5 @@
  #define rustg_http_request_blocking(method, url, body, headers, options) RUSTG_CALL(RUST_G, "http_request_blocking")(method, url, body, headers, options)
  #define rustg_http_request_async(method, url, body, headers, options) RUSTG_CALL(RUST_G, "http_request_async")(method, url, body, headers, options)
@@ -23,7 +15,7 @@ index eba7d68..fdcf7a7 100644
 +/proc/rustg_create_async_http_client() return RUSTG_CALL(RUST_G, "start_http_client")()
 +/proc/rustg_close_async_http_client() return RUSTG_CALL(RUST_G, "shutdown_http_client")()
 diff --git a/src/http.rs b/src/http.rs
-index 5da2ff1..426f869 100644
+index 43f891e..135b2c2 100644
 --- a/src/http.rs
 +++ b/src/http.rs
 @@ -1,8 +1,8 @@
@@ -36,7 +28,7 @@ index 5da2ff1..426f869 100644
  
  // ----------------------------------------------------------------------------
  // Interface
-@@ -78,7 +78,9 @@ fn setup_http_client() -> reqwest::blocking::Client {
+@@ -75,7 +75,9 @@ fn setup_http_client() -> reqwest::blocking::Client {
      Client::builder().default_headers(headers).build().unwrap()
  }
  
@@ -47,7 +39,7 @@ index 5da2ff1..426f869 100644
  
  // ----------------------------------------------------------------------------
  // Request construction and execution
-@@ -95,38 +97,56 @@ fn construct_request(
+@@ -92,38 +94,56 @@ fn construct_request(
      headers: &str,
      options: &str,
  ) -> Result<RequestPrep> {
@@ -135,7 +127,7 @@ index 5da2ff1..426f869 100644
      })
  }
  
-@@ -158,3 +178,17 @@ fn submit_request(prep: RequestPrep) -> Result<String> {
+@@ -155,3 +175,17 @@ fn submit_request(prep: RequestPrep) -> Result<String> {
  
      Ok(serde_json::to_string(&resp)?)
  }
@@ -174,5 +166,5 @@ index 16b5009..9b5d5c5 100644
          req,
          unzip_directory: dir_copy,
 -- 
-2.35.2.windows.1
+2.41.0.windows.3
 
