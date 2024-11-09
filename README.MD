@@ -13,8 +13,8 @@ The license for RUST-G itself can be found on tg's repo. Code for the Paradise m
 1. You **must** have a copy of `Git Bash` or some other bash emulator on windows, and a git identity setup. This will not work otherwise.
 2. Run the `apply_patches.sh` file to autocreate a clone of `tg-rust-g`, and apply the patches to it.
 3. Paradise RUST-G requires all features to be enabled.
-    - To build on windows, run `cargo build --release --all-features --target=i686-pc-windows-msvc`. This will generate a 32-bit `.dll` file that is compatible with BYOND.
-    - To build on linux, run `cargo build --release --all-features --target=i686-unknown-linux-gnu`. This will generate a 32-bit `.so` file that is compatible with BYOND.
+    - To build on windows, run `cargo build --release --features all --target=i686-pc-windows-msvc`. This will generate a 32-bit `.dll` file that is compatible with BYOND.
+    - To build on linux, run `cargo build --release --features all --target=i686-unknown-linux-gnu`. This will generate a 32-bit `.so` file that is compatible with BYOND.
 
 If you are still stuck, check tg's README. for more detailed instructions.
 

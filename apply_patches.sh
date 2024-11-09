@@ -1,7 +1,7 @@
 #!/bin/sh
 
 basedir=`pwd`
-tg_tag="3.0.0"
+tg_tag="3.4.0"
 
 echo "Checking for TG rust-g repo.."
 if [ ! -d "./tg-rust-g" ] 
@@ -46,4 +46,4 @@ apply_patch() {
     fi
 }
 
-apply_patch tg-rust-g paradise-rust-g origin/master
+apply_patch tg-rust-g paradise-rust-g $tg_tag

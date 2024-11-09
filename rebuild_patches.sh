@@ -2,6 +2,7 @@
 
 PS1="$"
 basedir=`pwd`
+tg_tag="3.4.0"
 clean=$1
 echo "Rebuilding patch files from current fork state..."
 
@@ -40,4 +41,4 @@ save_patches() {
 if [ "$clean" == "clean" ]; then
     rm -rf *-patches
 fi
-save_patches tg-rust-g paradise-rust-g origin/master
+save_patches tg-rust-g paradise-rust-g $tg_tag

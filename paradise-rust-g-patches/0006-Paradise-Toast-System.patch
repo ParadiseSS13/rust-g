@@ -1,0 +1,451 @@
+From ffe5a143912f8e5a277d6d601a6b428cbad16817 Mon Sep 17 00:00:00 2001
+From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
+Date: Mon, 4 Nov 2024 19:54:30 +0000
+Subject: [PATCH] Paradise Toast System
+
+
+diff --git a/Cargo.lock b/Cargo.lock
+index 6b456cc..095db20 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -93,9 +93,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "arbitrary"
+-version = "1.3.2"
++version = "1.4.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "7d5a26814d8dcb93b0e5a0ff3c6d80a8843bafb21b39e8e18a6f05471870e110"
++checksum = "775a8770d29db3dadcb858482cc240af7b2ffde4ac4de67d1d4955728103f0e2"
+ dependencies = [
+  "derive_arbitrary",
+ ]
+@@ -185,6 +185,12 @@ dependencies = [
+  "wyz",
+ ]
+ 
++[[package]]
++name = "block"
++version = "0.1.6"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "0d8c1fef690941d3e7788d328517591fecc684c084084702d6ff1641e993699a"
++
+ [[package]]
+ name = "block-buffer"
+ version = "0.10.4"
+@@ -619,6 +625,17 @@ dependencies = [
+  "rayon",
+ ]
+ 
++[[package]]
++name = "dbus"
++version = "0.9.7"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "1bb21987b9fb1613058ba3843121dd18b163b254d8a6e797e144cbac14d96d1b"
++dependencies = [
++ "libc",
++ "libdbus-sys",
++ "winapi",
++]
++
+ [[package]]
+ name = "deflate"
+ version = "1.0.0"
+@@ -657,9 +674,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "derive_arbitrary"
+-version = "1.3.2"
++version = "1.4.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "67e77553c4162a157adbf834ebae5b415acbecbeafc7a74b0e886657506a7611"
++checksum = "d475dfebcb4854d596b17b09f477616f80f17a550517f2b3615d8c205d5c802b"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+@@ -688,6 +705,27 @@ dependencies = [
+  "subtle",
+ ]
+ 
++[[package]]
++name = "dirs-next"
++version = "2.0.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "b98cf8ebf19c3d1b223e151f99a4f9f0690dca41414773390fc824184ac833e1"
++dependencies = [
++ "cfg-if",
++ "dirs-sys-next",
++]
++
++[[package]]
++name = "dirs-sys-next"
++version = "0.1.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "4ebda144c4fe02d1f7ea1a7d9641b6fc6b580adcfa024ae48797ecdeb6825b4d"
++dependencies = [
++ "libc",
++ "redox_users",
++ "winapi",
++]
++
+ [[package]]
+ name = "displaydoc"
+ version = "0.2.5"
+@@ -1485,9 +1523,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "hashbrown"
+-version = "0.15.0"
++version = "0.15.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "1e087f84d4f86bf4b218b927129862374b72199ae7d8657835f1e89000eea4fb"
++checksum = "3a9bfc1af68b1726ea47d3d5109de126281def866b33970e10fbab11b5dafab3"
+ dependencies = [
+  "allocator-api2",
+  "equivalent",
+@@ -1549,7 +1587,7 @@ dependencies = [
+  "iana-time-zone-haiku",
+  "js-sys",
+  "wasm-bindgen",
+- "windows-core",
++ "windows-core 0.52.0",
+ ]
+ 
+ [[package]]
+@@ -1725,7 +1763,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "707907fe3c25f5424cce2cb7e1cbcafee6bdbe735ca90ef77c29e84591e5b9da"
+ dependencies = [
+  "equivalent",
+- "hashbrown 0.15.0",
++ "hashbrown 0.15.1",
+ ]
+ 
+ [[package]]
+@@ -1828,6 +1866,15 @@ version = "0.2.161"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "8e9489c2807c139ffd9c1794f4af0ebe86a828db53ecdc7fea2111d0fed085d1"
+ 
++[[package]]
++name = "libdbus-sys"
++version = "0.2.5"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "06085512b750d640299b79be4bad3d2fa90a9c00b1fd9e1b46364f66f0485c72"
++dependencies = [
++ "pkg-config",
++]
++
+ [[package]]
+ name = "libloading"
+ version = "0.8.5"
+@@ -1906,7 +1953,7 @@ version = "0.12.5"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "234cf4f4a04dc1f57e24b96cc0cd600cf2af460d4161ac5ecdd0af8e1f3b2a38"
+ dependencies = [
+- "hashbrown 0.15.0",
++ "hashbrown 0.15.1",
+ ]
+ 
+ [[package]]
+@@ -1925,6 +1972,28 @@ version = "0.1.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "c41e0c4fef86961ac6d6f8a82609f55f31b05e4fce149ac5710e439df7619ba4"
+ 
++[[package]]
++name = "mac-notification-sys"
++version = "0.6.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "dce8f34f3717aa37177e723df6c1fc5fb02b2a1087374ea3fe0ea42316dc8f91"
++dependencies = [
++ "cc",
++ "dirs-next",
++ "objc-foundation",
++ "objc_id",
++ "time",
++]
++
++[[package]]
++name = "malloc_buf"
++version = "0.0.6"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb"
++dependencies = [
++ "libc",
++]
++
+ [[package]]
+ name = "maplit"
+ version = "1.0.2"
+@@ -2133,6 +2202,18 @@ dependencies = [
+  "minimal-lexical",
+ ]
+ 
++[[package]]
++name = "notify-rust"
++version = "4.11.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "5134a72dc570b178bff81b01e81ab14a6fcc015391ed4b3b14853090658cd3a3"
++dependencies = [
++ "dbus",
++ "log",
++ "mac-notification-sys",
++ "tauri-winrt-notification",
++]
++
+ [[package]]
+ name = "num-bigint"
+ version = "0.4.6"
+@@ -2177,6 +2258,35 @@ dependencies = [
+  "libc",
+ ]
+ 
++[[package]]
++name = "objc"
++version = "0.2.7"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "915b1b472bc21c53464d6c8461c9d3af805ba1ef837e1cac254428f4a77177b1"
++dependencies = [
++ "malloc_buf",
++]
++
++[[package]]
++name = "objc-foundation"
++version = "0.1.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "1add1b659e36c9607c7aab864a76c7a4c2760cd0cd2e120f3fb8b952c7e22bf9"
++dependencies = [
++ "block",
++ "objc",
++ "objc_id",
++]
++
++[[package]]
++name = "objc_id"
++version = "0.1.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "c92d4ddb4bd7b50d730c215ff871754d0da6b2178849f8a2a2ab69712d0c073b"
++dependencies = [
++ "objc",
++]
++
+ [[package]]
+ name = "once_cell"
+ version = "1.20.2"
+@@ -2455,6 +2565,15 @@ dependencies = [
+  "syn 1.0.109",
+ ]
+ 
++[[package]]
++name = "quick-xml"
++version = "0.31.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "1004a344b30a54e2ee58d66a71b32d2db2feb0a31f9a2d302bf0536f15de2a33"
++dependencies = [
++ "memchr",
++]
++
+ [[package]]
+ name = "quote"
+ version = "1.0.37"
+@@ -2590,6 +2709,17 @@ dependencies = [
+  "bitflags 2.6.0",
+ ]
+ 
++[[package]]
++name = "redox_users"
++version = "0.4.6"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "ba009ff324d1fc1b900bd1fdb31564febe58a8ccc8a6fdbb93b543d33b13ca43"
++dependencies = [
++ "getrandom",
++ "libredox",
++ "thiserror",
++]
++
+ [[package]]
+ name = "regex"
+ version = "1.11.1"
+@@ -2693,6 +2823,7 @@ dependencies = [
+  "md-5",
+  "mysql",
+  "noise",
++ "notify-rust",
+  "num-integer",
+  "once_cell",
+  "pathfinding",
+@@ -3117,6 +3248,17 @@ version = "1.0.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
+ 
++[[package]]
++name = "tauri-winrt-notification"
++version = "0.2.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "f89f5fb70d6f62381f5d9b2ba9008196150b40b75f3068eb24faeddf1c686871"
++dependencies = [
++ "quick-xml",
++ "windows",
++ "windows-version",
++]
++
+ [[package]]
+ name = "tempfile"
+ version = "3.13.0"
+@@ -3528,6 +3670,16 @@ version = "0.4.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
+ 
++[[package]]
++name = "windows"
++version = "0.56.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "1de69df01bdf1ead2f4ac895dc77c9351aefff65b2f3db429a343f9cbf05e132"
++dependencies = [
++ "windows-core 0.56.0",
++ "windows-targets",
++]
++
+ [[package]]
+ name = "windows-core"
+ version = "0.52.0"
+@@ -3537,6 +3689,49 @@ dependencies = [
+  "windows-targets",
+ ]
+ 
++[[package]]
++name = "windows-core"
++version = "0.56.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "4698e52ed2d08f8658ab0c39512a7c00ee5fe2688c65f8c0a4f06750d729f2a6"
++dependencies = [
++ "windows-implement",
++ "windows-interface",
++ "windows-result",
++ "windows-targets",
++]
++
++[[package]]
++name = "windows-implement"
++version = "0.56.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "f6fc35f58ecd95a9b71c4f2329b911016e6bec66b3f2e6a4aad86bd2e99e2f9b"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "syn 2.0.87",
++]
++
++[[package]]
++name = "windows-interface"
++version = "0.56.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "08990546bf4edef8f431fa6326e032865f27138718c587dc21bc0265bbcb57cc"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "syn 2.0.87",
++]
++
++[[package]]
++name = "windows-result"
++version = "0.1.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "5e383302e8ec8515204254685643de10811af0ed97ea37210dc26fb0032647f8"
++dependencies = [
++ "windows-targets",
++]
++
+ [[package]]
+ name = "windows-sys"
+ version = "0.52.0"
+@@ -3571,6 +3766,15 @@ dependencies = [
+  "windows_x86_64_msvc",
+ ]
+ 
++[[package]]
++name = "windows-version"
++version = "0.1.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "6998aa457c9ba8ff2fb9f13e9d2a930dabcea28f1d0ab94d687d8b3654844515"
++dependencies = [
++ "windows-targets",
++]
++
+ [[package]]
+ name = "windows_aarch64_gnullvm"
+ version = "0.52.6"
+diff --git a/Cargo.toml b/Cargo.toml
+index 4e71bc2..7ebe14a 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -64,6 +64,7 @@ ammonia = { version = "4.0.0", optional = true }
+ fast_poisson = { version = "0.5.2", optional = true, features = [
+     "single_precision",
+ ] } # Higher versions have problems with x86 due to 'kiddo'.
++notify-rust = { version = "4.6.0", optional = true, features=["d"], default-features = false }
+ 
+ [features]
+ default = [
+@@ -81,6 +82,7 @@ default = [
+     "sanitize",
+     "sql",
+     "time",
++    "toast",
+     "toml",
+     "url",
+ ]
+@@ -100,6 +102,7 @@ all = [
+     "sanitize",
+     "sql",
+     "time",
++    "toast",
+     "toml",
+     "url",
+     "hash",
+@@ -125,6 +128,7 @@ log = ["chrono"]
+ sanitize = ["ammonia", "serde_json"]
+ sql = ["mysql", "serde", "serde_json", "once_cell", "dashmap", "jobs"]
+ time = []
++toast = ["notify-rust"]
+ toml = ["serde", "serde_json", "toml-dep"]
+ url = ["url-dep", "percent-encoding"]
+ 
+diff --git a/dmsrc/toast.dm b/dmsrc/toast.dm
+new file mode 100644
+index 0000000..9222f88
+--- /dev/null
++++ b/dmsrc/toast.dm
+@@ -0,0 +1,3 @@
++// Toast Operations //
++
++#define rustg_create_toast(title, body) RUSTG_CALL(RUST_G, "create_toast")(title, body)
+diff --git a/src/lib.rs b/src/lib.rs
+index 6a3f7c3..b467ad5 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -46,6 +46,8 @@ pub mod sanitize;
+ pub mod sql;
+ #[cfg(feature = "time")]
+ pub mod time;
++#[cfg(feature = "toast")]
++pub mod toast;
+ #[cfg(feature = "toml")]
+ pub mod toml;
+ #[cfg(feature = "unzip")]
+diff --git a/src/toast.rs b/src/toast.rs
+new file mode 100644
+index 0000000..a1d6cd8
+--- /dev/null
++++ b/src/toast.rs
+@@ -0,0 +1,9 @@
++#[cfg(target_os = "windows")]
++use notify_rust::Notification;
++
++byond_fn!(fn create_toast(_toast_title, _toast_text) {
++    #[cfg(target_os = "windows")]
++    Notification::new().summary(_toast_title).body(_toast_text).show().ok();
++
++    Some("")
++});
+-- 
+2.41.0.windows.3
+

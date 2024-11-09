@@ -1,4 +1,4 @@
-From edf520da0a3f4c4b9141cde63918b23dcc3f6dac Mon Sep 17 00:00:00 2001
+From 06758a8bc4e57d42c354740437a125169a79d759 Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
 Date: Thu, 14 Oct 2021 15:50:14 +0100
 Subject: [PATCH] Paradise HTTP Module Tweaks
@@ -15,7 +15,7 @@ index eba7d68..c880334 100644
 +/proc/rustg_create_async_http_client() return RUSTG_CALL(RUST_G, "start_http_client")()
 +/proc/rustg_close_async_http_client() return RUSTG_CALL(RUST_G, "shutdown_http_client")()
 diff --git a/src/http.rs b/src/http.rs
-index 43f891e..135b2c2 100644
+index c077f06..ef98d45 100644
 --- a/src/http.rs
 +++ b/src/http.rs
 @@ -1,8 +1,8 @@
@@ -28,18 +28,18 @@ index 43f891e..135b2c2 100644
  
  // ----------------------------------------------------------------------------
  // Interface
-@@ -75,7 +75,9 @@ fn setup_http_client() -> reqwest::blocking::Client {
-     Client::builder().default_headers(headers).build().unwrap()
- }
+@@ -63,7 +63,9 @@ byond_fn!(fn http_check_request(id) {
+ const VERSION: &str = env!("CARGO_PKG_VERSION");
+ const PKG_NAME: &str = env!("CARGO_PKG_NAME");
  
--pub static HTTP_CLIENT: Lazy<reqwest::blocking::Client> = Lazy::new(setup_http_client);
+-pub static HTTP_CLIENT: Lazy<ureq::Agent> = Lazy::new(ureq::agent);
 +thread_local! {
-+    pub static HTTP_CLIENT: RefCell<Option<reqwest::blocking::Client>> = RefCell::new(Some(setup_http_client()));
++    pub static HTTP_CLIENT: RefCell<Option<ureq::Agent>> = RefCell::new(Some(ureq::agent()));
 +}
  
  // ----------------------------------------------------------------------------
  // Request construction and execution
-@@ -92,38 +94,56 @@ fn construct_request(
+@@ -81,38 +83,57 @@ fn construct_request(
      headers: &str,
      options: &str,
  ) -> Result<RequestPrep> {
@@ -50,16 +50,15 @@ index 43f891e..135b2c2 100644
 -        "delete" => HTTP_CLIENT.delete(url),
 -        "head" => HTTP_CLIENT.head(url),
 -        _ => HTTP_CLIENT.get(url),
--    };
--
--    if !body.is_empty() {
--        req = req.body(body.to_owned());
 -    }
+-    .set("User-Agent", &format!("{PKG_NAME}/{VERSION}"));
+-
+-    let mut final_body = body.as_bytes().to_vec();
 -
 -    if !headers.is_empty() {
 -        let headers: BTreeMap<&str, &str> = serde_json::from_str(headers)?;
 -        for (key, value) in headers {
--            req = req.header(key, value);
+-            req = req.set(key, value);
 -        }
 -    }
 -
@@ -68,7 +67,7 @@ index 43f891e..135b2c2 100644
 -        let options: RequestOptions = serde_json::from_str(options)?;
 -        output_filename = options.output_filename;
 -        if let Some(fname) = options.body_filename {
--            req = req.body(std::fs::File::open(fname)?);
+-            final_body = std::fs::read(fname)?;
 +    HTTP_CLIENT.with(|cell| {
 +        let borrow = cell.borrow_mut();
 +        match &*borrow {
@@ -80,16 +79,15 @@ index 43f891e..135b2c2 100644
 +                    "delete" => client.delete(url),
 +                    "head" => client.head(url),
 +                    _ => client.get(url),
-+                };
-+
-+                if !body.is_empty() {
-+                    req = req.body(body.to_owned());
 +                }
++                .set("User-Agent", &format!("{PKG_NAME}/{VERSION}"));
++
++                let mut final_body = body.as_bytes().to_vec();
 +
 +                if !headers.is_empty() {
 +                    let headers: BTreeMap<&str, &str> = serde_json::from_str(headers)?;
 +                    for (key, value) in headers {
-+                        req = req.header(key, value);
++                        req = req.set(key, value);
 +                    }
 +                }
 +
@@ -98,24 +96,26 @@ index 43f891e..135b2c2 100644
 +                    let options: RequestOptions = serde_json::from_str(options)?;
 +                    output_filename = options.output_filename;
 +                    if let Some(fname) = options.body_filename {
-+                        req = req.body(std::fs::File::open(fname)?);
++                        final_body = std::fs::read(fname)?;
 +                    }
 +                }
 +
 +                Ok(RequestPrep {
 +                    req,
 +                    output_filename,
++                    body: final_body,
 +                })
 +            }
 +
 +            // If we got here we royally fucked up
 +            None => {
-+                let client = setup_http_client();
++                let client = ureq::agent();
 +                let req = client.get("");
 +                let output_filename = None;
 +                Ok(RequestPrep {
 +                    req,
 +                    output_filename,
++                    body: Vec::new(),
 +                })
 +            }
          }
@@ -124,17 +124,18 @@ index 43f891e..135b2c2 100644
 -    Ok(RequestPrep {
 -        req,
 -        output_filename,
+-        body: final_body,
      })
  }
  
-@@ -155,3 +175,17 @@ fn submit_request(prep: RequestPrep) -> Result<String> {
+@@ -145,3 +166,17 @@ fn submit_request(prep: RequestPrep) -> Result<String> {
  
      Ok(serde_json::to_string(&resp)?)
  }
 +
 +byond_fn!(fn start_http_client() {
 +    HTTP_CLIENT.with(|cell| {
-+        cell.replace(Some(setup_http_client()))
++        cell.replace(Some(ureq::agent()))
 +    });
 +    Some("")
 +});
@@ -146,10 +147,10 @@ index 43f891e..135b2c2 100644
 +    Some("")
 +});
 diff --git a/src/unzip.rs b/src/unzip.rs
-index 16b5009..9b5d5c5 100644
+index b0a471a..c43dbbd 100644
 --- a/src/unzip.rs
 +++ b/src/unzip.rs
-@@ -11,9 +11,13 @@ struct UnzipPrep {
+@@ -10,9 +10,13 @@ struct UnzipPrep {
  }
  
  fn construct_unzip(url: &str, unzip_directory: &str) -> UnzipPrep {
