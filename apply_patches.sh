@@ -13,6 +13,7 @@ fi
 echo "Setting up project... "
 
 cd "$basedir/tg-rust-g"
+git fetch
 git reset --hard $tg_tag
 
 apply_patch() {
