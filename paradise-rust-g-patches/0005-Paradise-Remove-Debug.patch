@@ -1,11 +1,11 @@
-From c3c0893a3b4a1e0b243a8e6e0c69ee8dbe38eb08 Mon Sep 17 00:00:00 2001
+From 9ab3dbcef5ac5033bc7039f8f17d7416a44be715 Mon Sep 17 00:00:00 2001
 From: AffectedArc07 <25063394+AffectedArc07@users.noreply.github.com>
 Date: Sun, 30 Oct 2022 15:29:37 +0000
 Subject: [PATCH] Paradise Remove Debug
 
 
 diff --git a/Cargo.toml b/Cargo.toml
-index 84947b9..4e71bc2 100644
+index 53c35c0..098db21 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
 @@ -19,7 +19,6 @@ crate-type = ["cdylib"]
@@ -15,7 +15,7 @@ index 84947b9..4e71bc2 100644
 -debug = true
  
  [dependencies]
- thiserror = "1.0"
+ thiserror = "2.0"
 -- 
 2.41.0.windows.3
 
