@@ -2,7 +2,7 @@
 
 PS1="$"
 basedir=`pwd`
-tg_tag="3.7.0"
+tg_tag="3.4.0"
 clean=$1
 echo "Rebuilding patch files from current fork state..."
 
