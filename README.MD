@@ -1,3 +1,7 @@
+# Archive Notice
+
+This repo is archived as of 2025-10-28 as of [#30461](https://github.com/ParadiseSS13/Paradise/pull/30461) on Paradise.
+
 # ParadiseSS13 RUST-G
 
 This repository holds ParadiseSS13 modifications of [rust-g](https://github.com/tgstation/rust-g) libraries from /tg/station.
